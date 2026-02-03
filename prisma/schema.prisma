@@ -1,0 +1,78 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+
+
+
+
+datasource db {
+  provider = "sqlite"
+  
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+
+model School {
+  id        String    @id @default(uuid())
+  name      String
+  createdAt DateTime  @default(now())
+  users     User[]
+  courses   Course[]
+  students  Student[]
+}
+
+model User {
+  id       String  @id @default(uuid())
+  email    String  @unique
+  password String
+  role     String  // 'SUPER_ADMIN', 'ADMIN', 'STAFF'
+  schoolId String? // Nulo apenas para SUPER_ADMIN
+  school   School? @relation(fields: [schoolId], references: [id])
+}
+
+model Course {
+  id          String       @id @default(uuid())
+  name        String
+  price       Float
+  schoolId    String
+  school      School       @relation(fields: [schoolId], references: [id])
+  enrollments Enrollment[]
+}
+
+model Student {
+  id             String       @id @default(uuid())
+  name           String
+  whatsappNumber String?      @unique
+  status         String       @default("PRE_INSCRITO") // PRE_INSCRITO, ATIVO
+  schoolId       String
+  school         School       @relation(fields: [schoolId], references: [id])
+  enrollments    Enrollment[]
+  payments       Payment[]
+}
+
+model Enrollment {
+  id        String   @id @default(uuid())
+  studentId String
+  courseId  String
+  status    String   @default("PENDENTE") // PENDENTE, PAGO
+  student   Student  @relation(fields: [studentId], references: [id])
+  course    Course   @relation(fields: [courseId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Payment {
+  id          String   @id @default(uuid())
+  studentId   String
+  amount      Float
+  type        String   // 'INSCRICAO' ou 'MENSALIDADE'
+  month       String?  // Ex: 'Janeiro/2026'
+  isPaid      Boolean  @default(false)
+  paidAt      DateTime?
+  student     Student  @relation(fields: [studentId], references: [id])
+}
