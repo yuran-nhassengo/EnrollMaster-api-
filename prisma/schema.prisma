@@ -21,6 +21,8 @@ generator client {
 model School {
   id        String    @id @default(uuid())
   name      String
+  location  String
+  contact  String?
   createdAt DateTime  @default(now())
   users     User[]
   courses   Course[]

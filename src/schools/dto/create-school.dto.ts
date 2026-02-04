@@ -1,5 +1,5 @@
 export class CreateSchoolDto {
   name: string; // Nome da Escola
-  adminEmail: string; // Email do Admin da Escola
-  adminPassword: string; // Senha do Admin da Escola
+  contact: string; // Email do Admin da Escola
+  location: string; // Senha do Admin da Escola
 }
