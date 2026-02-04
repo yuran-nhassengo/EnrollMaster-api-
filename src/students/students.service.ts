@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../../prisma/prisma.service';
 import { CreateEnrollmentDto } from './dto/create-enrollment.dto';
 
 @Injectable()
@@ -30,12 +30,14 @@ export class StudentsService {
       });
 
       // 3. Gerar a cobrança da taxa de inscrição na tabela de Pagamentos
-      const course = await tx.course.findUnique({ where: { id: dto.courseId } });
-      
+      const course = await tx.course.findUnique({
+        where: { id: dto.courseId },
+      });
+
       await tx.payment.create({
         data: {
           studentId: student.id,
-          amount: course.price,
+          amount: course?.price || 0,
           type: 'INSCRICAO',
           isPaid: false,
         },
