@@ -14,13 +14,13 @@ export class UsersController {
   //@Roles('ADMIN') // Apenas o Admin da escola cria novos usuários
   create(@Body() dto: CreateUserDto, @Req() req) {
     // Pegamos o schoolId injetado pelo JwtStrategy
-    const schoolId = req.user.schoolId;
-    return this.usersService.create(dto, schoolId);
+    const loggedUser = req.user;
+    return this.usersService.create(dto, loggedUser);
   }
 
   @Get()
-  //@Roles('ADMIN')
   findAll(@Req() req) {
-    return this.usersService.findAllBySchool(req.user.schoolId);
+    const loggedUser = req.user; // PEGAMOS O USUÁRIO LOGADO
+    return this.usersService.findAll(loggedUser);
   }
 }

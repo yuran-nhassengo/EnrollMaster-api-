@@ -31,6 +31,8 @@ model School {
 
 model User {
   id       String  @id @default(uuid())
+  name     String ?
+  contacto String ?
   email    String  @unique
   password String
   role     String  // 'SUPER_ADMIN', 'ADMIN', 'STAFF'
