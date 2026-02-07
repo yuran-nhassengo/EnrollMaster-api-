@@ -8,11 +8,13 @@ import { StudentsModule } from './students/students.module';
 import { PaymentsModule } from './payments/payments.module';
 import { UsersModule } from './users/users.module';
 import { PrismaModule } from '../prisma/prisma.module';
+import { SubjectsModule } from './subjects/subjects.module';
 
 @Module({
   imports: [
     SchoolsModule,
     AuthModule,
+    SubjectsModule,
     CoursesModule,
     StudentsModule,
     PaymentsModule,

@@ -1,5 +1,15 @@
+import { IsString, IsNotEmpty, IsOptional } from 'class-validator';
+
 export class CreateSchoolDto {
-  name: string; // Nome da Escola
-  contact: string; // Email do Admin da Escola
-  location: string; // Senha do Admin da Escola
+  @IsString()
+  @IsNotEmpty({ message: 'O nome da escola é obrigatório' })
+  name: string;
+
+  @IsString()
+  @IsNotEmpty({ message: 'A localização é obrigatória' })
+  location: string;
+
+  @IsString()
+  @IsOptional()
+  contact?: string; // Pode ser o telefone da escola
 }

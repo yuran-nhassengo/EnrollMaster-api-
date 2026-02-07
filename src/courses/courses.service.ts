@@ -10,9 +10,16 @@ export class CoursesService {
     return this.prisma.course.create({
       data: {
         name: dto.name,
-        price: dto.price,
-        // No futuro, você pode expandir 'period' para uma tabela própria
-        schoolId: schoolId, 
+        registrationFee: dto.registrationFee,
+        durationMonths: dto.durationMonths,
+        schoolId: schoolId,
+        // Criando as regras de preço junto com o curso
+        priceRules: {
+          create: dto.priceRules,
+        },
+      },
+      include: {
+        priceRules: true, // Retorna as regras criadas para conferência
       },
     });
   }
@@ -20,6 +27,12 @@ export class CoursesService {
   async findAllBySchool(schoolId: string) {
     return this.prisma.course.findMany({
       where: { schoolId },
+      include: {
+        priceRules: true,
+        _count: {
+          select: { enrollments: true },
+        },
+      },
     });
   }
 }

@@ -43,10 +43,30 @@ model User {
 model Course {
   id          String       @id @default(uuid())
   name        String
-  price       Float
+ registrationFee Float
+  durationMonths  Int
   schoolId    String
+  priceRules      CoursePriceRule[]
   school      School       @relation(fields: [schoolId], references: [id])
+
   enrollments Enrollment[]
+
+  // ADICIONE ESTA LINHA ABAIXO:
+//  subjects        Subject[]
+}
+
+model Subject {
+  id          String              @id @default(uuid())
+  name        String               @unique
+   enrollments EnrollmentSubject[] // Registros de alunos matriculados nesta disciplina
+}
+
+model CoursePriceRule {
+  id           String @id @default(uuid())
+  subjectCount Int    // Ex: 1 disciplina, 2 disciplinas...
+  price        Float  // Ex: 2000, 4000...
+  courseId     String
+  course       Course @relation(fields: [courseId], references: [id])
 }
 
 model Student {
@@ -64,18 +84,34 @@ model Enrollment {
   id        String   @id @default(uuid())
   studentId String
   courseId  String
+  //subjectCount Int      @default(1) // Quantas disciplinas o aluno escolheu
+  startDate DateTime @default(now())
   status    String   @default("PENDENTE") // PENDENTE, PAGO
   student   Student  @relation(fields: [studentId], references: [id])
   course    Course   @relation(fields: [courseId], references: [id])
+  subjects     EnrollmentSubject[]
   createdAt DateTime @default(now())
+}
+
+// Tabela de Ligação: Quais disciplinas o aluno está cursando nesta matrícula
+model EnrollmentSubject {
+  id           String     @id @default(uuid())
+  enrollmentId String
+  subjectId    String
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id])
+  subject      Subject    @relation(fields: [subjectId], references: [id])
 }
 
 model Payment {
   id          String   @id @default(uuid())
   studentId   String
   amount      Float
+  penalty     Float     @default(0) // Valor da MULTA
+  totalPaid   Float?    // Valor final pago (amount + penalty)
   type        String   // 'INSCRICAO' ou 'MENSALIDADE'
-  month       String?  // Ex: 'Janeiro/2026'
+  month       Int?  // Ex: 'Janeiro/2026'
+  year        Int?      // Ano de referência
+  dueDate     DateTime  // Data de Vencimento (Crucial para Multas!)
   isPaid      Boolean  @default(false)
   paidAt      DateTime?
   student     Student  @relation(fields: [studentId], references: [id])

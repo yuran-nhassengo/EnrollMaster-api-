@@ -94,7 +94,7 @@ export class UsersService {
           role: true,
           name: true,
           contacto: true,
-          school: { select: { name: true } },
+          school: { select: { id: true, name: true } },
         },
       });
     }
@@ -108,7 +108,7 @@ export class UsersService {
           role: true,
           name: true,
           contacto: true,
-          school: { select: { name: true } },
+          school: { select: { id: true, name: true } },
         },
       });
     }
@@ -122,7 +122,7 @@ export class UsersService {
           role: true,
           name: true,
           contacto: true,
-          school: { select: { name: true } },
+          school: { select: { id: true, name: true } },
         },
       });
     }

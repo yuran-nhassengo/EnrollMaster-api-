@@ -1,4 +1,12 @@
-import { Controller, Post, Get, Body, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  UseGuards,
+  Req,
+  BadRequestException,
+} from '@nestjs/common';
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -11,15 +19,20 @@ export class CoursesController {
   constructor(private readonly coursesService: CoursesService) {}
 
   @Post()
-  // @Roles('ADMIN') // Apenas Admins da escola criam cursos
   create(@Body() dto: CreateCourseDto, @Req() req) {
-    // Pegamos o schoolId que injetamos no token JWT lá no Auth
     const schoolId = req.user.schoolId;
+
+    if (!schoolId) {
+      throw new BadRequestException(
+        'Apenas usuários vinculados a uma escola podem criar cursos.',
+      );
+    }
+
     return this.coursesService.create(dto, schoolId);
   }
 
   @Get()
-//  @Roles('ADMIN', 'STAFF') // Staff também pode ver os cursos
+  //  @Roles('ADMIN', 'STAFF') // Staff também pode ver os cursos
   findAll(@Req() req) {
     return this.coursesService.findAllBySchool(req.user.schoolId);
   }
