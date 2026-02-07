@@ -83,4 +83,81 @@ export class StudentsService {
       orderBy: { name: 'asc' },
     });
   }
+
+  // Encontra um aluno específico com TODO o histórico (Financeiro e Académico)
+  // No students.service.ts
+  async findOne(id: string, schoolId: string) {
+    const student = await this.prisma.student.findFirst({
+      where: {
+        id: id,
+        schoolId: schoolId,
+      },
+      include: {
+        enrollments: {
+          include: {
+            course: {
+              include: {
+                priceRules: true, // <--- SE ESTA LINHA FALTAR, O VALOR SERÁ 0
+              },
+            },
+            subjects: {
+              include: {
+                subject: true,
+              },
+            },
+          },
+        },
+        payments: {
+          orderBy: {
+            dueDate: 'desc',
+          },
+        },
+      },
+    });
+
+    if (!student) throw new NotFoundException('Estudante não encontrado');
+    return student;
+  }
+
+  // Atualiza dados básicos do aluno
+  async update(id: string, schoolId: string, data: any) {
+    // Primeiro verificamos se o aluno pertence à escola
+    await this.findOne(id, schoolId);
+
+    return this.prisma.student.update({
+      where: { id },
+      data: {
+        name: data.name,
+        whatsappNumber: data.whatsappNumber,
+        status: data.status,
+      },
+    });
+  }
+
+  // Remove (ou desativa) o aluno
+  async remove(id: string, schoolId: string) {
+    await this.findOne(id, schoolId);
+
+    // Em sistemas escolares, é melhor mudar o status para 'REMOVIDO'
+    // do que apagar os dados (por causa do histórico financeiro)
+    return this.prisma.student.update({
+      where: { id },
+      data: { status: 'INATIVO' },
+    });
+  }
+
+  async findAll(schoolId: string) {
+    return this.prisma.student.findMany({
+      where: { schoolId },
+      include: {
+        enrollments: {
+          include: {
+            course: true,
+            subjects: { include: { subject: true } },
+          },
+        },
+        payments: true, // Para sabermos se pagou a inscrição
+      },
+    });
+  }
 }
