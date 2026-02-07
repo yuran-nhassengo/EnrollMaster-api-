@@ -9,17 +9,20 @@ import { PaymentsModule } from './payments/payments.module';
 import { UsersModule } from './users/users.module';
 import { PrismaModule } from '../prisma/prisma.module';
 import { SubjectsModule } from './subjects/subjects.module';
+import { EnrollmentsModule } from './enrollments/enrollments.module';
 
 @Module({
   imports: [
     SchoolsModule,
     AuthModule,
     SubjectsModule,
+    EnrollmentsModule,
     CoursesModule,
     StudentsModule,
     PaymentsModule,
     UsersModule,
     PrismaModule,
+    EnrollmentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
