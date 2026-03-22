@@ -52,6 +52,7 @@ export class CoursesController {
 
   @Get()
   //  @Roles('ADMIN', 'STAFF') // Staff também pode ver os cursos
+  @UseGuards(JwtAuthGuard)
   findAll(@Req() req) {
     return this.coursesService.findAllBySchool(req.user.schoolId);
   }

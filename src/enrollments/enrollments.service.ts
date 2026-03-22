@@ -51,8 +51,9 @@ export class EnrollmentsService {
     });
   }
 
-  async findAll() {
+  async findAll(schoolId?: string) {
     return this.prisma.enrollment.findMany({
+      where: schoolId ? { student: { schoolId } } : undefined,
       include: {
         student: true,
         course: true,
@@ -100,9 +101,15 @@ export class EnrollmentsService {
   }
 
   async createFullRegistration(data: any, schoolId: string) {
+    console.log('[Enrollment] Iniciando criação:', {
+      name: data.name,
+      whatsappNumber: data.whatsappNumber,
+      courseId: data.courseId,
+      schoolId,
+      timestamp: new Date().toISOString(),
+    });
+
     return this.prisma.$transaction(async (tx) => {
-      // 1. O UPSERT é a chave: Ele garante que o ID do Estudante seja recuperado
-      // Quer ele tenha acabado de ser criado ou já existisse no sistema.
       const student = await tx.student.upsert({
         where: { whatsappNumber: data.whatsappNumber || '' },
         update: { name: data.name },
@@ -114,13 +121,15 @@ export class EnrollmentsService {
         },
       });
 
-      // 2. VERIFICAÇÃO DE SEGURANÇA: Evita que a segunda "batida" do botão crie outra matrícula
+      console.log('[Enrollment] Student upsert:', student.id);
+
       const existingEnrollment = await tx.enrollment.findFirst({
         where: { studentId: student.id, courseId: data.courseId },
       });
 
+      console.log('[Enrollment] Existing:', existingEnrollment?.id ?? 'nenhum');
+
       if (existingEnrollment) {
-        // Se já existir, apenas retornamos o que já foi criado em vez de duplicar
         return {
           student,
           enrollment: existingEnrollment,
@@ -128,19 +137,21 @@ export class EnrollmentsService {
         };
       }
 
-      // 3. CRIAÇÃO DA MATRÍCULA: Agora sim, usamos o ID que veio do Upsert
       const enrollment = await tx.enrollment.create({
         data: {
           studentId: student.id,
           courseId: data.courseId,
           status: data.paymentConfirmed ? 'PAGO' : 'PENDENTE',
           subjects: {
-            create: data.subjectIds.map((id: string) => ({ subjectId: id })),
+            create: (data.subjectIds ?? []).map((id: string) => ({
+              subjectId: id,
+            })),
           },
         },
       });
 
-      // 4. PAGAMENTO: Vinculado ao mesmo estudante
+      console.log('[Enrollment] Criado:', enrollment.id);
+
       await tx.payment.create({
         data: {
           studentId: student.id,

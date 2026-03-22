@@ -25,14 +25,22 @@ export class CoursesService {
   }
 
   async findAllBySchool(schoolId: string) {
-    return this.prisma.course.findMany({
-      where: { schoolId },
-      include: {
-        priceRules: true,
-        _count: {
-          select: { enrollments: true },
+    console.log('[CoursesService] findAllBySchool:', schoolId);
+    try {
+      const result = await this.prisma.course.findMany({
+        where: { schoolId },
+        include: {
+          priceRules: true,
+          _count: {
+            select: { enrollments: true },
+          },
         },
-      },
-    });
+      });
+      console.log('[CoursesService] resultado:', result.length);
+      return result;
+    } catch (err) {
+      console.error('[CoursesService] erro:', err);
+      throw err;
+    }
   }
 }

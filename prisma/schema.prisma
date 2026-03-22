@@ -69,16 +69,30 @@ model CoursePriceRule {
   course       Course @relation(fields: [courseId], references: [id])
 }
 
+
 model Student {
-  id             String       @id @default(uuid())
-  name           String
-  whatsappNumber String?      @unique
-  status         String       @default("PRE_INSCRITO") // PRE_INSCRITO, ATIVO
-  schoolId       String
-  school         School       @relation(fields: [schoolId], references: [id])
-  enrollments    Enrollment[]
-  payments       Payment[]
+  id               String       @id @default(uuid())
+  name             String
+  whatsappNumber   String?      @unique
+  biNumber         String?      @unique
+  birthDate        String?
+  fatherName       String?
+  motherName       String?
+  validity         String?
+  issuePlace       String?
+  address          String?
+  gender           String?
+  previousSchool   String?
+  classLevel       String?
+  guardianName     String?
+  guardianPhone    String?
+  status           String       @default("PRE_INSCRITO")
+  schoolId         String
+  school           School       @relation(fields: [schoolId], references: [id])
+  enrollments      Enrollment[]
+  payments         Payment[]
 }
+
 
 model Enrollment {
   id        String   @id @default(uuid())
