@@ -6,6 +6,9 @@ import {
   UseGuards,
   Req,
   BadRequestException,
+  Headers,
+  Query,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { CoursesService } from './courses.service';
 import { CreateCourseDto } from './dto/create-course.dto';
@@ -14,11 +17,27 @@ import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 // import { Roles } from '../auth/decorators/roles.decorator';
 
 @Controller('courses')
-@UseGuards(JwtAuthGuard)
 export class CoursesController {
   constructor(private readonly coursesService: CoursesService) {}
 
+  // Rota pública para o bot WhatsApp — autenticada por API key
+  @Get('public')
+  findPublic(
+    @Headers('x-api-key') apiKey: string,
+    @Query('schoolId') schoolId: string,
+  ) {
+    const expectedKey = process.env.WHATSAPP_API_KEY ?? '';
+    if (!expectedKey || apiKey !== expectedKey) {
+      throw new UnauthorizedException('Chave de API inválida');
+    }
+    if (!schoolId) {
+      throw new BadRequestException('schoolId é obrigatório');
+    }
+    return this.coursesService.findAllBySchool(schoolId);
+  }
+
   @Post()
+  @UseGuards(JwtAuthGuard)
   create(@Body() dto: CreateCourseDto, @Req() req) {
     const schoolId = req.user.schoolId;
 

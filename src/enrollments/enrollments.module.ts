@@ -4,8 +4,9 @@ import { EnrollmentsController } from './enrollments.controller';
 import { PrismaModule } from '../../prisma/prisma.module';
 
 @Module({
-  imports: [PrismaModule], // Necessário para o Service acessar o banco
+  imports: [PrismaModule],
   controllers: [EnrollmentsController],
   providers: [EnrollmentsService],
+  exports: [EnrollmentsService],
 })
 export class EnrollmentsModule {}

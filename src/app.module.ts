@@ -10,6 +10,7 @@ import { UsersModule } from './users/users.module';
 import { PrismaModule } from '../prisma/prisma.module';
 import { SubjectsModule } from './subjects/subjects.module';
 import { EnrollmentsModule } from './enrollments/enrollments.module';
+import { WebhookModule } from './webhook/webhook.module';
 
 @Module({
   imports: [
@@ -22,7 +23,7 @@ import { EnrollmentsModule } from './enrollments/enrollments.module';
     PaymentsModule,
     UsersModule,
     PrismaModule,
-    EnrollmentsModule,
+    WebhookModule,
   ],
   controllers: [AppController],
   providers: [AppService],
